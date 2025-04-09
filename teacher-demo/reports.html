@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Отчеты по успеваемости</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ... existing styles ... */
+
+    .reports-grid {
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+
+    .report-card {
+      min-height: 350px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-container {
+      flex: 1;
+      position: relative;
+      height: 300px; 
+      width: 100%;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .grade-distribution {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .grade-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .bar-container {
+      width: 100%;
+      height: 150px;
+      background: var(--light-blue);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .bar {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: var(--primary-color);
+      border-radius: 8px;
+      transition: height 0.3s ease;
+    }
+
+    .grade-label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .grade-count {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .attendance-calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 15px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: var(--light-blue);
+    }
+
+    .calendar-day.present {
+      background: #4CAF50;
+    }
+
+    .calendar-day.absent {
+      background: #FF5722;
+    }
+
+    .calendar-day.partial {
+      background: #FFC107;
+    }
+
+    .top-students {
+      margin-top: 20px;
+    }
+
+    .student-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--light-blue);
+    }
+
+    .student-name {
+      flex: 1;
+    }
+
+    .student-grade {
+      background: var(--primary-color);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .reports-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .report-card {
+        min-height: 300px;
+      }
+
+      .grade-distribution {
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+
+      .attendance-calendar {
+        grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+        <div class="sidebar-header">
+          <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+            <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+          </svg>
+          <h1>HorizonLMS</h1>
+        </div>
+        <ul class="nav-links">
+          <li>
+            <a href="index.html">
+              <i class="fas fa-home"></i>
+              <span>Главная</span>
+            </a>
+          </li>
+          <li class="active">
+            <a href="reports.html">
+              <i class="fas fa-chart-bar"></i>
+              <span>Отчеты</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons.html">
+              <i class="fas fa-book"></i>
+              <span>Уроки</span>
+            </a>
+          </li>
+          <li>
+            <a href="schedule.html">
+              <i class="fas fa-calendar-alt"></i>
+              <span>Расписание</span>
+            </a>
+          </li>
+          <li>
+            <a href="chats.html">
+              <i class="fas fa-tasks"></i>
+              <span>Файлы</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+    <main class="content">
+      <div class="reports-container">
+        <div class="reports-header">
+          <h2>Аналитика успеваемости</h2>
+          <p class="subtitle">Подробный анализ успеваемости учащихся</p>
+        </div>
+
+        <div class="report-filters">
+          <div class="filter-group">
+            <label for="class-select">Класс</label>
+            <select id="class-select" class="report-select">
+              <option value="9a">9 "А"</option>
+              <option value="9b">9 "Б"</option>
+              <option value="9c">9 "В"</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="subject-select">Предмет</label>
+            <select id="subject-select" class="report-select">
+              <option value="math">Математика</option>
+              <option value="physics">Физика</option>
+              <option value="russian">Русский язык</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="period-select">Период</label>
+            <select id="period-select" class="report-select">
+              <option value="quarter1">1 четверть</option>
+              <option value="quarter2">2 четверть</option>
+              <option value="quarter3">3 четверть</option>
+              <option value="quarter4">4 четверть</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="summary-cards">
+          <div class="summary-card">
+            <div class="summary-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Средний балл</h3>
+              <p class="summary-value">4.2</p>
+              <span class="trend positive">↑ 0.3</span>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Успеваемость</h3>
+              <p class="summary-value">85%</p>
+              <span class="trend positive">↑ 5%</span>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Качество знаний</h3>
+              <p class="summary-value">75%</p>
+              <span class="trend negative">↓ 2%</span>
+            </div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-icon">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="summary-info">
+              <h3>Отличники</h3>
+              <p class="summary-value">8</p>
+              <span class="trend neutral">без изменений</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="reports-grid">
+          <div class="report-card performance-chart">
+            <h3>Динамика успеваемости</h3>
+            <div class="chart-container">
+              <canvas id="performanceChart"></canvas>
+            </div>
+          </div>
+
+          <div class="report-card distribution-chart">
+            <h3>Распределение оценок</h3>
+            <div class="chart-container">
+              <canvas id="gradesChart"></canvas>
+            </div>
+          </div>
+
+          <div class="report-card attendance-chart">
+            <h3>Посещаемость</h3>
+            <div class="chart-container">
+              <canvas id="attendanceChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="detailed-report">
+          <div class="report-header">
+            <h3>Детальный отчет по учащимся</h3>
+            <div class="report-actions">
+              <button class="btn-export"><i class="fas fa-download"></i> Экспорт</button>
+              <button class="btn-print" onclick="alert('Недоступно в демонстрационном варианте')"><i class="fas fa-print"></i> Печать</button>
+            </div>
+          </div>
+          <div class="report-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>ФИО ученика</th>
+                  <th>Средний балл</th>
+                  <th>Динамика</th>
+                  <th>Посещаемость</th>
+                  <th>Выполнено работ</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="studentsTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    // Sample data structure for different classes, subjects and quarters
+    const classData = {
+      '9a': {
+        name: '9 "А"',
+        subjects: {
+          math: {
+            name: 'Математика',
+            quarters: {
+              quarter1: {
+                averageGrade: 4.2,
+                attendance: 92,
+                qualityRate: 75,
+                excellentCount: 8,
+                gradeDistribution: {5: 8, 4: 12, 3: 5, 2: 0},
+                monthlyGrades: [4.1, 4.2, 4.3, 4.2, 4.4],
+                attendanceData: [95, 92, 94, 90, 93]
+              },
+              quarter2: {
+                averageGrade: 4.3,
+                attendance: 94,
+                qualityRate: 78,
+                excellentCount: 9,
+                gradeDistribution: {5: 9, 4: 11, 3: 4, 2: 0},
+                monthlyGrades: [4.2, 4.3, 4.4, 4.3, 4.5],
+                attendanceData: [96, 93, 95, 92, 94]
+              }
+            }
+          },
+          physics: {
+            name: 'Физика',
+            quarters: {
+              quarter1: {
+                averageGrade: 4.0,
+                attendance: 90,
+                qualityRate: 70,
+                excellentCount: 6,
+                gradeDistribution: {5: 6, 4: 14, 3: 6, 2: 0},
+                monthlyGrades: [3.9, 4.0, 4.1, 4.0, 4.2],
+                attendanceData: [92, 90, 91, 89, 90]
+              },
+              quarter2: {
+                averageGrade: 4.1,
+                attendance: 91,
+                qualityRate: 72,
+                excellentCount: 7,
+                gradeDistribution: {5: 7, 4: 13, 3: 5, 2: 0},
+                monthlyGrades: [4.0, 4.1, 4.2, 4.1, 4.3],
+                attendanceData: [93, 91, 92, 90, 91]
+              }
+            }
+          }
+        }
+      },
+      '9b': {
+        name: '9 "Б"',
+        subjects: {
+          math: {
+            name: 'Математика',
+            quarters: {
+              quarter1: {
+                averageGrade: 4.1,
+                attendance: 91,
+                qualityRate: 73,
+                excellentCount: 7,
+                gradeDistribution: {5: 7, 4: 13, 3: 5, 2: 0},
+                monthlyGrades: [4.0, 4.1, 4.2, 4.1, 4.3],
+                attendanceData: [92, 91, 93, 90, 91]
+              },
+              quarter2: {
+                averageGrade: 4.2,
+                attendance: 93,
+                qualityRate: 75,
+                excellentCount: 8,
+                gradeDistribution: {5: 8, 4: 12, 3: 4, 2: 0},
+                monthlyGrades: [4.1, 4.2, 4.3, 4.2, 4.4],
+                attendanceData: [94, 92, 93, 91, 93]
+              }
+            }
+          },
+          physics: {
+            name: 'Физика',
+            quarters: {
+              quarter1: {
+                averageGrade: 3.9,
+                attendance: 89,
+                qualityRate: 68,
+                excellentCount: 5,
+                gradeDistribution: {5: 5, 4: 13, 3: 7, 2: 0},
+                monthlyGrades: [3.8, 3.9, 4.0, 3.9, 4.1],
+                attendanceData: [90, 89, 91, 88, 89]
+              },
+              quarter2: {
+                averageGrade: 4.0,
+                attendance: 90,
+                qualityRate: 70,
+                excellentCount: 6,
+                gradeDistribution: {5: 6, 4: 12, 3: 6, 2: 0},
+                monthlyGrades: [3.9, 4.0, 4.1, 4.0, 4.2],
+                attendanceData: [91, 90, 92, 89, 90]
+              }
+            }
+          }
+        }
+      }
+    };
+
+    function updateCharts() {
+      const classId = document.getElementById('class-select').value;
+      const subject = document.getElementById('subject-select').value;
+      const quarter = document.getElementById('period-select').value;
+      
+      // Get data for selected filters
+      const selectedData = classData[classId]?.subjects[subject]?.quarters[quarter];
+      
+      if (!selectedData) {
+        console.error('No data found for selected filters');
+        return;
+      }
+
+      // Update summary cards
+      document.querySelectorAll('.summary-value').forEach((el, index) => {
+        switch(index) {
+          case 0:
+            el.textContent = selectedData.averageGrade.toFixed(1);
+            break;
+          case 1:
+            el.textContent = selectedData.attendance + '%';
+            break;
+          case 2:
+            el.textContent = selectedData.qualityRate + '%';
+            break;
+          case 3:
+            el.textContent = selectedData.excellentCount;
+            break;
+        }
+      });
+
+      // Update performance chart
+      const performanceChart = Chart.getChart('performanceChart');
+      if (performanceChart) performanceChart.destroy();
+      
+      new Chart(document.getElementById('performanceChart'), {
+        type: 'line',
+        data: {
+          labels: ['Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь', 'Январь'],
+          datasets: [{
+            label: 'Средний балл',
+            data: selectedData.monthlyGrades,
+            borderColor: '#2B5BA9',
+            tension: 0.4,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5
+            }
+          }
+        }
+      });
+
+      // Update grades distribution chart
+      const gradesChart = Chart.getChart('gradesChart');
+      if (gradesChart) gradesChart.destroy();
+
+      new Chart(document.getElementById('gradesChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Отлично', 'Хорошо', 'Удовлетворительно', 'Неудовлетворительно'],
+          datasets: [{
+            data: [
+              selectedData.gradeDistribution[5],
+              selectedData.gradeDistribution[4],
+              selectedData.gradeDistribution[3],
+              selectedData.gradeDistribution[2]
+            ],
+            backgroundColor: ['#4CAF50', '#2B5BA9', '#FFC107', '#FF5722']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right' }
+          }
+        }
+      });
+
+      // Update attendance chart
+      const attendanceChart = Chart.getChart('attendanceChart');
+      if (attendanceChart) attendanceChart.destroy();
+
+      new Chart(document.getElementById('attendanceChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь', 'Январь'],
+          datasets: [{
+            label: 'Посещаемость (%)',
+            data: selectedData.attendanceData,
+            backgroundColor: '#2B5BA9'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+      
+      updateStudentsTable(classId, subject, quarter);
+    }
+
+    function updateStudentsTable(classId, subject, quarter) {
+      const studentsData = {
+        '9a': {
+          'math': {
+            'quarter1': [
+              { name: 'Алексеев Иван', photo: 'https://via.placeholder.com/32', averageGrade: 4.8, trend: '+0.3', attendance: '95%', completedWork: '23/25', status: 'Отлично' },
+              { name: 'Борисова Анна', photo: 'https://via.placeholder.com/32', averageGrade: 4.5, trend: '+0.2', attendance: '92%', completedWork: '22/25', status: 'Отлично' },
+              { name: 'Васильев Петр', photo: 'https://via.placeholder.com/32', averageGrade: 4.2, trend: '+0.1', attendance: '88%', completedWork: '20/25', status: 'Хорошо' },
+              { name: 'Григорьева Мария', photo: 'https://via.placeholder.com/32', averageGrade: 4.0, trend: '-0.1', attendance: '90%', completedWork: '21/25', status: 'Хорошо' },
+              { name: 'Дмитриев Алексей', photo: 'https://via.placeholder.com/32', averageGrade: 3.8, trend: '+0.2', attendance: '85%', completedWork: '19/25', status: 'Хорошо' },
+              { name: 'Егорова София', photo: 'https://via.placeholder.com/32', averageGrade: 4.7, trend: '+0.3', attendance: '94%', completedWork: '24/25', status: 'Отлично' },
+              { name: 'Жуков Андрей', photo: 'https://via.placeholder.com/32', averageGrade: 3.9, trend: '+0.1', attendance: '87%', completedWork: '20/25', status: 'Хорошо' },
+              { name: 'Зайцева Екатерина', photo: 'https://via.placeholder.com/32', averageGrade: 4.6, trend: '+0.2', attendance: '93%', completedWork: '23/25', status: 'Отлично' },
+              { name: 'Иванов Михаил', photo: 'https://via.placeholder.com/32', averageGrade: 4.1, trend: '+0.1', attendance: '89%', completedWork: '21/25', status: 'Хорошо' },
+              { name: 'Козлова Дарья', photo: 'https://via.placeholder.com/32', averageGrade: 4.4, trend: '+0.2', attendance: '91%', completedWork: '22/25', status: 'Хорошо' }
+            ]
+          }
+        },
+        '9b': {
+          'math': {
+            'quarter1': [
+              { name: 'Лебедев Артём', photo: 'https://via.placeholder.com/32', averageGrade: 4.6, trend: '+0.2', attendance: '93%', completedWork: '23/25', status: 'Отлично' },
+              { name: 'Морозова Полина', photo: 'https://via.placeholder.com/32', averageGrade: 4.3, trend: '+0.1', attendance: '90%', completedWork: '21/25', status: 'Хорошо' },
+              { name: 'Новиков Даниил', photo: 'https://via.placeholder.com/32', averageGrade: 4.0, trend: '-0.1', attendance: '87%', completedWork: '20/25', status: 'Хорошо' },
+              { name: 'Орлова Виктория', photo: 'https://via.placeholder.com/32', averageGrade: 4.8, trend: '+0.3', attendance: '95%', completedWork: '24/25', status: 'Отлично' },
+              { name: 'Павлов Кирилл', photo: 'https://via.placeholder.com/32', averageGrade: 3.9, trend: '+0.2', attendance: '86%', completedWork: '19/25', status: 'Хорошо' },
+              { name: 'Романова Алиса', photo: 'https://via.placeholder.com/32', averageGrade: 4.5, trend: '+0.2', attendance: '92%', completedWork: '22/25', status: 'Отлично' },
+              { name: 'Соколов Максим', photo: 'https://via.placeholder.com/32', averageGrade: 4.2, trend: '+0.1', attendance: '89%', completedWork: '21/25', status: 'Хорошо' },
+              { name: 'Тимофеева Ева', photo: 'https://via.placeholder.com/32', averageGrade: 4.7, trend: '+0.3', attendance: '94%', completedWork: '23/25', status: 'Отлично' },
+              { name: 'Ушаков Илья', photo: 'https://via.placeholder.com/32', averageGrade: 4.1, trend: '+0.1', attendance: '88%', completedWork: '20/25', status: 'Хорошо' },
+              { name: 'Федорова Варвара', photo: 'https://via.placeholder.com/32', averageGrade: 4.4, trend: '+0.2', attendance: '91%', completedWork: '22/25', status: 'Хорошо' }
+            ]
+          }
+        }
+      };
+
+      const tableBody = document.getElementById('studentsTableBody');
+      const students = studentsData[classId]?.[subject]?.[quarter] || [];
+      
+      tableBody.innerHTML = students.map(student => `
+        <tr>
+          <td>
+            <div class="student-name">
+              <i class="fas fa-user-circle fa-2x"></i>
+              ${student.name}
+            </div>
+          </td>
+          <td>
+            <span class="grade ${student.averageGrade >= 4.5 ? 'high' : 'medium'}">${student.averageGrade}</span>
+          </td>
+          <td>
+            <span class="trend-indicator ${student.trend.startsWith('+') ? 'positive' : 'negative'}">
+              ${student.trend}
+            </span>
+          </td>
+          <td>${student.attendance}</td>
+          <td>${student.completedWork}</td>
+          <td>
+            <span class="status ${student.status === 'Отлично' ? 'excellent' : 'good'}">${student.status}</span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Add event listeners to filters
+    document.addEventListener('DOMContentLoaded', () => {
+      ['class-select', 'subject-select', 'period-select'].forEach(id => {
+        document.getElementById(id).addEventListener('change', updateCharts);
+      });
+      
+      // Initial render
+      updateCharts();
+    });
+  </script>
+</body>
+</html>

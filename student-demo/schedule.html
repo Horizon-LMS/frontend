@@ -1,0 +1,95 @@
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Расписание</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+          <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+        </svg>
+        <h1>HorizonLMS</h1>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="index.html">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="schedule.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Расписание</span>
+          </a>
+        </li>
+        <li>
+          <a href="lessons.html">
+            <i class="fas fa-book"></i>
+            <span>Уроки</span>
+          </a>
+        </li>
+        <li>
+          <a href="tasks.html">
+            <i class="fas fa-tasks"></i>
+            <span>Задания</span>
+          </a>
+        </li>
+        <li>
+          <a href="progress.html">
+            <i class="fas fa-chart-line"></i>
+            <span>Успеваемость</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="content">
+
+
+      <div class="schedule-container">
+        <div class="schedule-header">
+          <button class="btn-prev"><i class="fas fa-chevron-left"></i></button>
+          <h2>15 - 21 мая 2023</h2>
+          <button class="btn-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        
+        <div class="class-schedule">
+          <div class="day-card">
+            <h3>Понедельник</h3>
+            <div class="lesson-card">
+              <div class="lesson-time">8:30</div>
+              <div class="lesson-info">
+                <h4>Русский язык</h4>
+                <p>Кабинет 201</p>
+              </div>
+            </div>
+            <div class="lesson-card">
+              <div class="lesson-time">9:25</div>
+              <div class="lesson-info">
+                <h4>Математика</h4>
+                <p>Кабинет 315</p>
+              </div>
+            </div>
+            <!-- More lessons -->
+          </div>
+          
+          <div class="day-card">
+            <h3>Вторник</h3>
+            <!-- Similar lesson cards -->
+          </div>
+          <!-- More days -->
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

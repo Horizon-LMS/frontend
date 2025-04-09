@@ -1,0 +1,182 @@
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Личный кабинет</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+          <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+        </svg>
+        <h1>HorizonLMS</h1>
+      </div>
+      <ul class="nav-links">
+        <li class="active">
+          <a href="#">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+          </a>
+        </li>
+        <li>
+          <a href="schedule.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Расписание</span>
+          </a>
+        </li>
+        <li>
+          <a href="lessons.html">
+            <i class="fas fa-book"></i>
+            <span>Уроки</span>
+          </a>
+        </li>
+        <li>
+          <a href="tasks/html">
+            <i class="fas fa-tasks"></i>
+            <span>Задания</span>
+          </a>
+        </li>
+        <li>
+          <a href="/progres.html">
+            <i class="fas fa-chart-line"></i>
+            <span>Успеваемость</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="content">
+
+      <div class="dashboard">
+        <div class="welcome-section">
+          <div class="welcome-card">
+            <div class="welcome-content">
+              <h2>Привет, Иван!</h2>
+              <div class="quick-stats">
+                <div class="quick-stat">
+                  <i class="fas fa-clock"></i>
+                  <span>6 уроков сегодня</span>
+                </div>
+                <div class="quick-stat">
+                  <i class="fas fa-tasks"></i>
+                  <span>3 задания на сдачу</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="schedule-preview">
+            <h3>Следующий урок</h3>
+            <div class="next-lesson">
+              <div class="lesson-time">10:45</div>
+              <div class="lesson-info">
+                <h4>Алгебра</h4>
+                <p>Кабинет 315</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <i class="fas fa-graduation-cap"></i>
+            <div class="stat-info">
+              <h3>Средний балл</h3>
+              <p>4.6</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-tasks"></i>
+            <div class="stat-info">
+              <h3>Выполнено заданий</h3>
+              <p>42/45</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-calendar-check"></i>
+            <div class="stat-info">
+              <h3>Посещаемость</h3>
+              <p>98%</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <i class="fas fa-trophy"></i>
+            <div class="stat-info">
+              <h3>Достижения</h3>
+              <p>12</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="homework-section">
+            <div class="section-header">
+              <h2>Домашние задания</h2>
+              <a href="#" class="view-all">Все задания</a>
+            </div>
+            <div class="homework-list">
+              <div class="homework-item">
+                <div class="subject-icon"><i class="fas fa-calculator"></i></div>
+                <div class="homework-content">
+                  <h4>Алгебра</h4>
+                  <p>№ 245, 246, 247</p>
+                  <span class="deadline">Сдать до: 16 мая</span>
+                </div>
+                <div class="homework-status pending">
+                  <i class="fas fa-hourglass-half"></i>
+                </div>
+              </div>
+              <div class="homework-item">
+                <div class="subject-icon"><i class="fas fa-book"></i></div>
+                <div class="homework-content">
+                  <h4>Литература</h4>
+                  <p>Читать "Евгений Онегин" гл. 3-4</p>
+                  <span class="deadline">Сдать до: 17 мая</span>
+                </div>
+                <div class="homework-status pending">
+                  <i class="fas fa-hourglass-half"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="upcoming-tests">
+            <div class="section-header">
+              <h2>Ближайшие контрольные</h2>
+              <a href="#" class="view-all">Все контрольные</a>
+            </div>
+            <div class="tests-list">
+              <div class="test-item">
+                <div class="test-date">
+                  <span class="day">17</span>
+                  <span class="month">мая</span>
+                </div>
+                <div class="test-content">
+                  <h4>Физика</h4>
+                  <p>Тема: Механическое движение</p>
+                </div>
+              </div>
+              <div class="test-item">
+                <div class="test-date">
+                  <span class="day">20</span>
+                  <span class="month">мая</span>
+                </div>
+                <div class="test-content">
+                  <h4>Геометрия</h4>
+                  <p>Тема: Подобие треугольников</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

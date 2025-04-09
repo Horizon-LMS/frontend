@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Файлы</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .files-container {
+      padding: 20px;
+    }
+
+    .files-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .upload-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .upload-btn:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .file-card {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid var(--light-blue);
+      position: relative;
+    }
+
+    .file-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary-color);
+    }
+
+    .file-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--light-blue);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .file-info h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 5px;
+      word-break: break-word;
+    }
+
+    .file-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .file-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .file-type-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .file-type-badge.doc {
+      background: #E3F2FD;
+      color: #1E88E5;
+    }
+
+    .file-type-badge.pdf {
+      background: #FFEBEE;
+      color: #E53935;
+    }
+
+    .file-type-badge.img {
+      background: #E8F5E9;
+      color: #43A047;
+    }
+
+    .file-actions {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .file-card:hover .file-actions {
+      opacity: 1;
+    }
+
+    .btn-action {
+      background: var(--light-blue);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--primary-color);
+    }
+
+    .btn-action:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-action.delete {
+      color: #E53935;
+    }
+
+    .btn-action.delete:hover {
+      background: #E53935;
+      color: white;
+    }
+
+    .files-filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-select {
+      padding: 10px;
+      border: 1px solid var(--light-blue);
+      border-radius: 8px;
+      background: white;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .files-container {
+        padding: 15px;
+      }
+
+      .files-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .files-filters {
+        width: 100%;
+      }
+
+      .upload-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .file-actions {
+        opacity: 1;
+        position: relative;
+        bottom: 0;
+        right: 0;
+        margin-top: 15px;
+      }
+
+      .btn-action {
+        flex: 1;
+        height: 40px;
+      }
+
+      .file-card {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+          <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+        </svg>
+        <h1>HorizonLMS</h1>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="index.html">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+          </a>
+        </li>
+        <li>
+          <a href="reports.html">
+            <i class="fas fa-chart-bar"></i>
+            <span>Отчеты</span>
+          </a>
+        </li>
+        <li>
+          <a href="lessons.html">
+            <i class="fas fa-book"></i>
+            <span>Уроки</span>
+          </a>
+        </li>
+        <li>
+          <a href="schedule.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Расписание</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="chats.html">
+            <i class="fas fa-tasks"></i>
+            <span>Файлы</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="content">
+
+
+      <div class="files-container">
+        <div class="files-header">
+          <div class="files-filters">
+            <select class="filter-select" id="classFilter">
+              <option value="all">Все классы</option>
+              <option value="9a">9 "А"</option>
+              <option value="9b">9 "Б"</option>
+              <option value="9c">9 "В"</option>
+            </select>
+            <select class="filter-select" id="subjectFilter">
+              <option value="all">Все предметы</option>
+              <option value="math">Математика</option>
+              <option value="physics">Физика</option>
+              <option value="russian">Русский язык</option>
+            </select>
+            <select class="filter-select" id="typeFilter">
+              <option value="all">Все типы</option>
+              <option value="doc">Документы</option>
+              <option value="pdf">PDF</option>
+              <option value="img">Изображения</option>
+            </select>
+          </div>
+          <button class="upload-btn" onclick="alert('Недоступно в демонстрационном варианте')">
+            <i class="fas fa-upload"></i>
+            Загрузить файл
+          </button>
+          <input type="file" id="fileInput" style="display: none;" multiple>
+        </div>
+
+        <div class="files-grid" id="filesGrid">
+          <!-- Files will be dynamically added here -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sample files data
+    let filesData = [
+      {
+        id: 1,
+        name: 'Контрольная работа 1.docx',
+        type: 'doc',
+        size: '256 KB',
+        date: '2023-05-15',
+        class: '9a',
+        subject: 'math'
+      },
+      {
+        id: 2,
+        name: 'Методичка по физике.pdf',
+        type: 'pdf',
+        size: '1.2 MB',
+        date: '2023-05-14',
+        class: '9b',
+        subject: 'physics'
+      },
+      {
+        id: 3,
+        name: 'Схема решения задач.jpg',
+        type: 'img',
+        size: '450 KB',
+        date: '2023-05-13',
+        class: '9c',
+        subject: 'math'
+      }
+    ];
+
+    function getFileIcon(type) {
+      switch(type) {
+        case 'doc':
+          return 'fa-file-word';
+        case 'pdf':
+          return 'fa-file-pdf';
+        case 'img':
+          return 'fa-file-image';
+        default:
+          return 'fa-file';
+      }
+    }
+
+    function renderFiles(files) {
+      const grid = document.getElementById('filesGrid');
+      grid.innerHTML = files.map(file => `
+        <div class="file-card">
+          <div class="file-icon">
+            <i class="fas ${getFileIcon(file.type)}"></i>
+          </div>
+          <span class="file-type-badge ${file.type}">${file.type.toUpperCase()}</span>
+          <div class="file-info">
+            <h3>${file.name}</h3>
+            <div class="file-meta">
+              <span><i class="fas fa-graduation-cap"></i> ${file.class}</span>
+              <span><i class="fas fa-clock"></i> ${new Date(file.date).toLocaleDateString('ru-RU')}</span>
+              <span><i class="fas fa-weight-hanging"></i> ${file.size}</span>
+            </div>
+          </div>
+          <div class="file-actions">
+            <button class="btn-action" onclick="downloadFile(${file.id})">
+              <i class="fas fa-download"></i>
+            </button>
+            <button class="btn-action" onclick="alert('Недоступно в демонстрационном варианте')">
+              <i class="fas fa-share-alt"></i>
+            </button>
+            <button class="btn-action delete" onclick="deleteFile(${file.id})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterFiles() {
+      const classFilter = document.getElementById('classFilter').value;
+      const subjectFilter = document.getElementById('subjectFilter').value;
+      const typeFilter = document.getElementById('typeFilter').value;
+      
+      let filteredFiles = filesData;
+      
+      if (classFilter !== 'all') {
+        filteredFiles = filteredFiles.filter(file => file.class === classFilter);
+      }
+      if (subjectFilter !== 'all') {
+        filteredFiles = filteredFiles.filter(file => file.subject === subjectFilter);
+      }
+      if (typeFilter !== 'all') {
+        filteredFiles = filteredFiles.filter(file => file.type === typeFilter);
+      }
+      
+      renderFiles(filteredFiles);
+    }
+
+    function downloadFile(id) {
+      console.log('Downloading file:', id);
+      // Add download logic here
+    }
+
+    function shareFile(id) {
+      console.log('Sharing file:', id);
+      // Add share logic here
+    }
+
+    function deleteFile(id) {
+      if (confirm('Вы уверены, что хотите удалить этот файл?')) {
+        filesData = filesData.filter(file => file.id !== id);
+        filterFiles();
+      }
+    }
+
+    // Add event listeners
+    document.getElementById('classFilter').addEventListener('change', filterFiles);
+    document.getElementById('subjectFilter').addEventListener('change', filterFiles);
+    document.getElementById('typeFilter').addEventListener('change', filterFiles);
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      // Handle file upload
+      console.log('Files selected:', e.target.files);
+      // Add file upload logic here
+    });
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      renderFiles(filesData);
+    });
+  </script>
+</body>
+</html>

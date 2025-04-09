@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Оценки</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .grades-container {
+      padding: 20px;
+    }
+
+    .grades-filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+      background: var(--white);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-group label {
+      font-weight: 500;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+    }
+
+    .filter-group select {
+      padding: 10px;
+      border: 1px solid var(--light-blue);
+      border-radius: 8px;
+      color: var(--text-primary);
+      background: var(--white);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-group select:hover {
+      border-color: var(--primary-color);
+    }
+
+    .grades-table-container {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .grades-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 0 10px;
+    }
+
+    .grades-header h2 {
+      font-size: 1.2rem;
+      color: var(--text-primary);
+    }
+
+    .grades-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-save {
+      background: var(--primary-color);
+      color: var(--white);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-save:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .grades-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .grades-table th,
+    .grades-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-blue);
+    }
+
+    .grades-table th {
+      background: var(--light-blue);
+      color: var(--text-primary);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 200px;
+    }
+
+    .student-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--light-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-color);
+    }
+
+    .grade-input {
+      width: 50px;
+      padding: 8px;
+      border: 1px solid var(--light-blue);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .grade-input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(43, 91, 169, 0.1);
+    }
+
+    .grade-type {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .grade-date {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .average-grade {
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--light-blue);
+      color: var(--primary-color);
+    }
+
+    .grade-cell {
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .add-grade {
+      background: none;
+      border: 2px dashed var(--light-blue);
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: var(--primary-color);
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .add-grade:hover {
+      border-color: var(--primary-color);
+      background: var(--light-blue);
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--white);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .modal-header {
+      margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+      font-size: 1.2rem;
+      color: var(--text-primary);
+    }
+
+    .close-modal {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .grade-form {
+      display: grid;
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 10px;
+      border: 1px solid var(--light-blue);
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel {
+      background: var(--light-blue);
+      color: var(--text-primary);
+    }
+
+    .btn-add-grade {
+      background: var(--primary-color);
+      color: var(--white);
+    }
+
+    @media (max-width: 768px) {
+      .grades-container {
+        padding: 15px;
+      }
+
+      .grades-filters {
+        grid-template-columns: 1fr;
+      }
+
+      .grades-table-container {
+        margin: 0 -15px;
+        border-radius: 0;
+      }
+
+      .grades-controls {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .btn-save {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .modal-content {
+        width: 95%;
+        margin: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+        <div class="sidebar-header">
+          <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+            <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+          </svg>
+          <h1>HorizonLMS</h1>
+        </div>
+        <ul class="nav-links">
+          <li class="active">
+            <a href="index.html">
+              <i class="fas fa-home"></i>
+              <span>Главная</span>
+            </a>
+          </li>
+          <li>
+            <a href="reports.html">
+              <i class="fas fa-chart-bar"></i>
+              <span>Отчеты</span>
+            </a>
+          </li>
+          <li>
+            <a href="lessons.html">
+              <i class="fas fa-book"></i>
+              <span>Уроки</span>
+            </a>
+          </li>
+          <li>
+            <a href="schedule.html">
+              <i class="fas fa-calendar-alt"></i>
+              <span>Расписание</span>
+            </a>
+          </li>
+          <li>
+            <a href="chats.html">
+              <i class="fas fa-tasks"></i>
+              <span>Файлы</span>
+            </a>
+          </li>
+          <li>
+            <a href="grades.html">
+              <i class="fas fa-tasks"></i>
+              <span>Оценки</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+    <main class="content">
+      <div class="grades-container">
+        <div class="grades-filters">
+          <div class="filter-group">
+            <label for="class-select">Класс</label>
+            <select id="class-select" onchange="loadGrades()">
+              <option value="9a">9 "А"</option>
+              <option value="9b">9 "Б"</option>
+              <option value="9c">9 "В"</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="subject-select">Предмет</label>
+            <select id="subject-select" onchange="loadGrades()">
+              <option value="math">Математика</option>
+              <option value="physics">Физика</option>
+              <option value="russian">Русский язык</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="period-select">Период</label>
+            <select id="period-select" onchange="loadGrades()">
+              <option value="semester1">1 четверть</option>
+              <option value="semester2">2 четверть</option>
+              <option value="semester3">3 четверть</option>
+              <option value="semester4">4 четверть</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grades-table-container">
+          <div class="grades-header">
+            <h2>Журнал оценок</h2>
+            <div class="grades-controls">
+            </div>
+          </div>
+          
+          <div id="gradesTableContainer">
+            <!-- Table will be dynamically generated here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal for adding new grade -->
+      <div id="addGradeModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Добавить оценку</h3>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+          </div>
+          <form id="gradeForm" class="grade-form">
+            <div class="form-group">
+              <label for="grade-type">Тип работы</label>
+              <select id="grade-type" required>
+                <option value="">Выберите тип работы</option>
+                <option value="test">Контрольная работа</option>
+                <option value="homework">Домашняя работа</option>
+                <option value="classwork">Работа на уроке</option>
+                <option value="quiz">Самостоятельная работа</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="grade-value">Оценка</label>
+              <input type="number" id="grade-value" min="2" max="5" required>
+            </div>
+            <div class="form-group">
+              <label for="grade-date">Дата</label>
+              <input type="date" id="grade-date" required>
+            </div>
+            <div class="form-group">
+              <label for="grade-comment">Комментарий</label>
+              <input type="text" id="grade-comment" placeholder="Необязательно">
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-cancel" onclick="closeModal()">Отмена</button>
+              <button type="submit" class="btn-add-grade">Добавить</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sample data structure for grades
+    const gradesData = {
+      '9a': {
+        'math': {
+          'semester1': {
+            students: [
+              {
+                id: 1,
+                name: 'Алексеев Иван',
+                grades: [
+                  { type: 'test', value: 5, date: '2023-09-05', comment: 'Контрольная работа' },
+                  { type: 'homework', value: 4, date: '2023-09-10', comment: 'Домашняя работа' }
+                ]
+              },
+              {
+                id: 2,
+                name: 'Борисова Анна',
+                grades: [
+                  { type: 'test', value: 4, date: '2023-09-05', comment: 'Контрольная работа' },
+                  { type: 'homework', value: 5, date: '2023-09-10', comment: 'Домашняя работа' }
+                ]
+              },
+              // Add more students here
+            ]
+          }
+        }
+      }
+    };
+
+    let currentStudentId = null;
+
+    function loadGrades() {
+      const classId = document.getElementById('class-select').value;
+      const subject = document.getElementById('subject-select').value;
+      const period = document.getElementById('period-select').value;
+
+      const data = gradesData[classId]?.[subject]?.[period];
+      
+      if (!data) {
+        document.getElementById('gradesTableContainer').innerHTML = '<p>Нет данных для выбранных параметров</p>';
+        return;
+      }
+
+      const table = document.createElement('table');
+      table.className = 'grades-table';
+
+      // Create header
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = `
+        <th>Ученик</th>
+        <th>Оценки</th>
+        <th>Средний балл</th>
+      `;
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Create body
+      const tbody = document.createElement('tbody');
+      data.students.forEach(student => {
+        const row = document.createElement('tr');
+        
+        // Student info cell
+        const studentCell = document.createElement('td');
+        studentCell.innerHTML = `
+          <div class="student-info">
+            <div class="student-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <span>${student.name}</span>
+          </div>
+        `;
+
+        // Grades cell
+        const gradesCell = document.createElement('td');
+        const gradesContainer = document.createElement('div');
+        gradesContainer.style.display = 'flex';
+        gradesContainer.style.gap = '10px';
+        gradesContainer.style.flexWrap = 'wrap';
+
+
+
+        // Add grade button
+        const addGradeBtn = document.createElement('button');
+        addGradeBtn.className = 'add-grade';
+        addGradeBtn.innerHTML = '<i class="fas fa-plus"></i>';
+        addGradeBtn.onclick = () => showAddGradeModal(student.id);
+        gradesContainer.appendChild(addGradeBtn);
+
+        gradesCell.appendChild(gradesContainer);
+
+        // Average grade cell
+        const averageCell = document.createElement('td');
+        const average = calculateAverage(student.grades);
+        averageCell.innerHTML = `<span class="average-grade">${average}</span>`;
+
+        row.appendChild(studentCell);
+        row.appendChild(gradesCell);
+        row.appendChild(averageCell);
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      document.getElementById('gradesTableContainer').innerHTML = '';
+      document.getElementById('gradesTableContainer').appendChild(table);
+    }
+
+    function getGradeTypeName(type) {
+      const types = {
+        'test': 'Контрольная',
+        'homework': 'Дом. работа',
+        'classwork': 'Классная',
+        'quiz': 'Самост.'
+      };
+      return types[type] || type;
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('ru-RU');
+    }
+
+    function calculateAverage(grades) {
+      if (!grades.length) return '-';
+      const sum = grades.reduce((acc, grade) => acc + grade.value, 0);
+      return (sum / grades.length).toFixed(1);
+    }
+
+    function showAddGradeModal(studentId) {
+      currentStudentId = studentId;
+      document.getElementById('addGradeModal').style.display = 'flex';
+      document.getElementById('grade-date').valueAsDate = new Date();
+    }
+
+    function closeModal() {
+      document.getElementById('addGradeModal').style.display = 'none';
+      document.getElementById('gradeForm').reset();
+      currentStudentId = null;
+    }
+
+    function saveGrades() {
+      // Implement save functionality
+      alert('Изменения сохранены');
+    }
+
+    document.getElementById('gradeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const classId = document.getElementById('class-select').value;
+      const subject = document.getElementById('subject-select').value;
+      const period = document.getElementById('period-select').value;
+      
+      const student = gradesData[classId][subject][period].students.find(s => s.id === currentStudentId);
+      
+      if (student) {
+        student.grades.push({
+          type: document.getElementById('grade-type').value,
+          value: parseInt(document.getElementById('grade-value').value),
+          date: document.getElementById('grade-date').value,
+          comment: document.getElementById('grade-comment').value
+        });
+        
+        closeModal();
+        loadGrades();
+      }
+    });
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+      const modal = document.getElementById('addGradeModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', loadGrades);
+  </script>
+</body>
+</html>

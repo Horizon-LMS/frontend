@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Управление домашними заданиями</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+          <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+        </svg>
+        <h1>HorizonLMS</h1>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="index.html">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+          </a>
+        </li>
+        <li>
+          <a href="reports.html">
+            <i class="fas fa-chart-bar"></i>
+            <span>Отчеты</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="lessons.html">
+            <i class="fas fa-book"></i>
+            <span>Уроки</span>
+          </a>
+        </li>
+        <li>
+          <a href="schedule.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Расписание</span>
+          </a>
+        </li>
+        <li>
+          <a href="chats.html">
+            <i class="fas fa-tasks"></i>
+            <span>Файлы</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="content">
+      <div class="homework-container">
+        <div class="add-homework-section">
+          <h2>Добавить домашнее задание</h2>
+          <form id="homeworkForm" class="homework-form">
+            <div class="form-group">
+              <label for="subject">Предмет</label>
+              <select id="subject" name="subject" required>
+                <option value="">Выберите предмет</option>
+                <option value="math">Математика</option>
+                <option value="physics">Физика</option>
+                <option value="russian">Русский язык</option>
+                <option value="literature">Литература</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="class">Класс</label>
+              <select id="class" name="class" required>
+                <option value="">Выберите класс</option>
+                <option value="9a">9 "А"</option>
+                <option value="9b">9 "Б"</option>
+                <option value="9c">9 "В"</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dueDate">Дата сдачи</label>
+              <input type="date" id="dueDate" name="dueDate" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Описание задания</label>
+              <textarea id="description" name="description" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-plus"></i> Добавить задание
+            </button>
+          </form>
+        </div>
+
+        <div class="homework-list-section">
+          <div class="homework-filters">
+            <select id="filterClass" class="filter-select">
+              <option value="all">Все классы</option>
+              <option value="9a">9 "А"</option>
+              <option value="9b">9 "Б"</option>
+              <option value="9c">9 "В"</option>
+            </select>
+            <select id="filterSubject" class="filter-select">
+              <option value="all">Все предметы</option>
+              <option value="math">Математика</option>
+              <option value="physics">Физика</option>
+              <option value="russian">Русский язык</option>
+              <option value="literature">Литература</option>
+            </select>
+          </div>
+
+          <div id="homeworkList" class="homework-items">
+            <!-- Homework items will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    // Sample homework data
+    let homeworkData = [
+      {
+        id: 1,
+        subject: 'math',
+        subjectName: 'Математика',
+        class: '9a',
+        dueDate: '2023-05-20',
+        description: '№ 245, 246, 247 из учебника',
+        dateAdded: '2023-05-15',
+        status: 'active'
+      },
+      {
+        id: 2,
+        subject: 'physics',
+        subjectName: 'Физика',
+        class: '9b',
+        dueDate: '2023-05-21',
+        description: 'Решить задачи по теме "Механическое движение"',
+        dateAdded: '2023-05-15',
+        status: 'active'
+      },
+      {
+        id: 3,
+        subject: 'literature',
+        subjectName: 'Литература',
+        class: '9a',
+        dueDate: '2023-05-22',
+        description: 'Читать "Евгений Онегин" главы 3-4',
+        dateAdded: '2023-05-15',
+        status: 'active'
+      }
+    ];
+
+    // Function to render homework items
+    function renderHomeworkItems(items) {
+      const container = document.getElementById('homeworkList');
+      container.innerHTML = items.map(item => `
+        <div class="homework-item" data-id="${item.id}">
+          <div class="homework-header">
+            <div class="subject-info">
+              <h3>${item.subjectName}</h3>
+              <span class="class-badge">${item.class}</span>
+            </div>
+            <div class="homework-actions">
+              <button class="btn-edit" onclick="editHomework(${item.id})">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-delete" onclick="deleteHomework(${item.id})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="homework-content">
+            <p>${item.description}</p>
+            <div class="homework-meta">
+              <span class="due-date">
+                <i class="fas fa-calendar-alt"></i>
+                Сдать до: ${new Date(item.dueDate).toLocaleDateString('ru-RU')}
+              </span>
+              <span class="date-added">
+                Добавлено: ${new Date(item.dateAdded).toLocaleDateString('ru-RU')}
+              </span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Function to filter homework items
+    function filterHomework() {
+      const classFilter = document.getElementById('filterClass').value;
+      const subjectFilter = document.getElementById('filterSubject').value;
+      
+      let filteredItems = homeworkData;
+      
+      if (classFilter !== 'all') {
+        filteredItems = filteredItems.filter(item => item.class === classFilter);
+      }
+      
+      if (subjectFilter !== 'all') {
+        filteredItems = filteredItems.filter(item => item.subject === subjectFilter);
+      }
+      
+      renderHomeworkItems(filteredItems);
+    }
+
+    // Function to handle form submission
+    document.getElementById('homeworkForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const newHomework = {
+        id: homeworkData.length + 1,
+        subject: document.getElementById('subject').value,
+        subjectName: document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text,
+        class: document.getElementById('class').value,
+        dueDate: document.getElementById('dueDate').value,
+        description: document.getElementById('description').value,
+        dateAdded: new Date().toISOString().split('T')[0],
+        status: 'active'
+      };
+      
+      homeworkData.push(newHomework);
+      this.reset();
+      filterHomework();
+    });
+
+    // Function to edit homework
+    function editHomework(id) {
+      const homework = homeworkData.find(item => item.id === id);
+      if (homework) {
+        document.getElementById('subject').value = homework.subject;
+        document.getElementById('class').value = homework.class;
+        document.getElementById('dueDate').value = homework.dueDate;
+        document.getElementById('description').value = homework.description;
+        
+        // Remove the old homework and add updated version on form submit
+        homeworkData = homeworkData.filter(item => item.id !== id);
+      }
+    }
+
+    // Function to delete homework
+    function deleteHomework(id) {
+      if (confirm('Вы уверены, что хотите удалить это задание?')) {
+        homeworkData = homeworkData.filter(item => item.id !== id);
+        filterHomework();
+      }
+    }
+
+    // Add event listeners to filters
+    document.getElementById('filterClass').addEventListener('change', filterHomework);
+    document.getElementById('filterSubject').addEventListener('change', filterHomework);
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      renderHomeworkItems(homeworkData);
+    });
+  </script>
+</body>
+</html>

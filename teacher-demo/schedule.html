@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HorizonLMS - Расписание</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .day-card {
+      background: var(--white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .day-header {
+      background: var(--primary-color);
+      color: var(--white);
+      padding: 15px 20px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-header .lesson-count {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .lessons-list {
+      padding: 15px;
+    }
+
+    .lesson-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid var(--light-blue);
+      position: relative;
+    }
+
+    .lesson-item:hover {
+      transform: translateX(5px);
+      border-color: var(--primary-color);
+    }
+
+    .lesson-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .lesson-time {
+      min-width: 90px;
+      text-align: center;
+      padding: 8px;
+      background: var(--light-blue);
+      border-radius: 8px;
+      font-weight: 500;
+      color: var(--primary-color);
+      font-size: 0.9rem;
+    }
+
+    .lesson-details {
+      flex: 1;
+    }
+
+    .lesson-subject {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .lesson-class {
+      font-size: 0.85rem;
+      padding: 3px 8px;
+      background: var(--light-blue);
+      border-radius: 6px;
+      color: var(--primary-color);
+    }
+
+    .lesson-room {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .lesson-actions {
+      display: flex;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--white);
+      padding: 5px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .lesson-item:hover .lesson-actions {
+      opacity: 1;
+    }
+
+    .btn-edit-lesson,
+    .btn-delete-lesson {
+      border: none;
+      background: none;
+      padding: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-edit-lesson {
+      color: var(--primary-color);
+    }
+
+    .btn-delete-lesson {
+      color: #E53E3E;
+    }
+
+    .btn-edit-lesson:hover,
+    .btn-delete-lesson:hover {
+      background: var(--light-blue);
+      transform: scale(1.1);
+    }
+
+    .empty-day {
+      padding: 30px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .empty-day i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+      .schedule-grid {
+        padding: 10px;
+        gap: 15px;
+      }
+
+      .day-card {
+        min-width: 100%;
+      }
+
+      .lesson-item {
+        padding: 12px;
+      }
+
+      .lesson-actions {
+        opacity: 1;
+        position: static;
+        transform: none;
+        margin-left: auto;
+        background: none;
+        box-shadow: none;
+        padding: 0;
+      }
+
+      .lesson-subject {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <svg class="logo" width="40" height="40" viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="18" fill="#2B5BA9"/>
+          <path d="M12 20L18 26L28 16" stroke="white" stroke-width="3" fill="none"/>
+        </svg>
+        <h1>HorizonLMS</h1>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="index.html">
+            <i class="fas fa-home"></i>
+            <span>Главная</span>
+          </a>
+        </li>
+        <li>
+          <a href="reports.html">
+            <i class="fas fa-chart-bar"></i>
+            <span>Отчеты</span>
+          </a>
+        </li>
+        <li>
+          <a href="lessons.html">
+            <i class="fas fa-book"></i>
+            <span>Уроки</span>
+          </a>
+        </li>
+        <li class="active">
+          <a href="schedule.html">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Расписание</span>
+          </a>
+        </li>
+        <li>
+          <a href="chats.html">
+            <i class="fas fa-tasks"></i>
+            <span>Файлы</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <main class="content">
+
+      <div class="schedule-container">
+        <div class="schedule-header">
+          <!--<div class="date-nav">
+            <button class="btn-prev"><i class="fas fa-chevron-left"></i></button>
+            <button class="btn-next"><i class="fas fa-chevron-right"></i></button> 
+          </div>
+          <button class="btn-add" onclick="showAddLessonModal()">
+            <i class="fas fa-plus"></i> Добавить урок
+          </button>-->
+        </div>
+
+        <div class="schedule-grid" id="scheduleGrid">
+          <!-- Days will be dynamically added here -->
+        </div>
+
+        <!-- Modal for adding/editing lessons -->
+        <div id="lessonModal" class="modal">
+          <div class="modal-content">
+            <h3>Добавить урок</h3>
+            <form id="lessonForm">
+              <div class="form-group">
+                <label for="class">Класс</label>
+                <select id="class" required>
+                  <option value="">Выберите класс</option>
+                  <option value="9a">9 "А"</option>
+                  <option value="9b">9 "Б"</option>
+                  <option value="9c">9 "В"</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="subject">Предмет</label>
+                <select id="subject" required>
+                  <option value="">Выберите предмет</option>
+                  <option value="math">Математика</option>
+                  <option value="physics">Физика</option>
+                  <option value="russian">Русский язык</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="dayOfWeek">День недели</label>
+                <select id="dayOfWeek" required>
+                  <option value="">Выберите день</option>
+                  <option value="1">Понедельник</option>
+                  <option value="2">Вторник</option>
+                  <option value="3">Среда</option>
+                  <option value="4">Четверг</option>
+                  <option value="5">Пятница</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="lessonTime">Время урока</label>
+                <select id="lessonTime" required>
+                  <option value="">Выберите время</option>
+                  <option value="8:30 - 9:15">8:30 - 9:15</option>
+                  <option value="9:25 - 10:10">9:25 - 10:10</option>
+                  <option value="10:20 - 11:05">10:20 - 11:05</option>
+                  <option value="11:25 - 12:10">11:25 - 12:10</option>
+                  <option value="12:20 - 13:05">12:20 - 13:05</option>
+                  <option value="13:15 - 14:00">13:15 - 14:00</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="room">Кабинет</label>
+                <input type="text" id="room" required>
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="hideModal()">Отмена</button>
+                <button type="submit" class="btn-save">Сохранить</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sample schedule data
+    const scheduleData = {
+      1: { // Monday
+        name: 'Понедельник',
+        lessons: [
+          { time: '8:30 - 9:15', class: '9А', subject: 'Математика', room: '20' },
+          { time: '10:20 - 11:05', class: '9С', subject: 'Математика', room: '20' }
+        ]
+      },
+      2: { // Tuesday
+        name: 'Вторник',
+        lessons: [
+          { time: '8:30 - 9:15', class: '9Б', subject: 'Математика', room: '20' },
+          { time: '9:25 - 10:10', class: '9А', subject: 'Алгебра', room: '20' }
+        ]
+      },
+      3: { // Wednesday
+        name: 'Среда',
+        lessons: []
+      },
+      4: { // Thursday
+        name: 'Четверг',
+        lessons: [
+          { time: '10:20 - 11:05', class: '9Б', subject: 'Геометрия', room: '20' }
+        ]
+      },
+      5: { // Friday
+        name: 'Пятница',
+        lessons: [
+          { time: '8:30 - 9:15', class: '9А', subject: 'Математика', room: '20' },
+          { time: '9:25 - 10:10', class: '9Б', subject: 'Математика', room: '20' }
+        ]
+      }
+    };
+
+    function renderSchedule() {
+      const grid = document.getElementById('scheduleGrid');
+      grid.innerHTML = '';
+
+      for (let dayNum = 1; dayNum <= 5; dayNum++) {
+        const day = scheduleData[dayNum];
+        const dayCard = document.createElement('div');
+        dayCard.className = 'day-card';
+
+        dayCard.innerHTML = `
+          <div class="day-header">
+            <span>${day.name}</span>
+            <span class="lesson-count">${day.lessons.length} уроков</span>
+          </div>
+          <div class="lessons-list">
+            ${day.lessons.length ? day.lessons.map(lesson => `
+              <div class="lesson-item">
+                <div class="lesson-time">${lesson.time}</div>
+                <div class="lesson-details">
+                  <div class="lesson-subject">
+                    ${lesson.subject}
+                    <span class="lesson-class">${lesson.class}</span>
+                  </div>
+                  <div class="lesson-room">Кабинет ${lesson.room}</div>
+                </div>
+                <div class="lesson-actions">
+                  <button class="btn-edit-lesson" onclick="editLesson('${dayNum}', '${lesson.time}')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-delete-lesson" onclick="deleteLesson('${dayNum}', '${lesson.time}')">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            `).join('') : `
+              <div class="empty-day">
+                <i class="fas fa-calendar-day"></i>
+                <p>Нет уроков</p>
+              </div>
+            `}
+          </div>
+        `;
+
+        grid.appendChild(dayCard);
+      }
+    }
+
+    function editLesson(dayNum, lessonTime) {
+      const day = scheduleData[dayNum];
+      const lesson = day.lessons.find(l => l.time === lessonTime);
+      if (lesson) {
+        showAddLessonModal();
+        // Populate modal with lesson data
+        document.getElementById('class').value = lesson.class;
+        document.getElementById('subject').value = lesson.subject;
+        document.getElementById('lessonTime').value = lessonTime;
+        document.getElementById('room').value = lesson.room;
+        document.getElementById('dayOfWeek').value = dayNum;
+      }
+    }
+
+    function deleteLesson(dayNum, lessonTime) {
+      if (confirm('Вы уверены, что хотите удалить этот урок?')) {
+        const day = scheduleData[dayNum];
+        day.lessons = day.lessons.filter(l => l.time !== lessonTime);
+        renderSchedule();
+      }
+    }
+
+    function showAddLessonModal() {
+      document.getElementById('lessonModal').style.display = 'flex';
+    }
+
+    function hideModal() {
+      document.getElementById('lessonModal').style.display = 'none';
+    }
+
+    document.getElementById('lessonForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const day = parseInt(document.getElementById('dayOfWeek').value);
+      const lessonTime = document.getElementById('lessonTime').value;
+      
+      if (!scheduleData[day].lessons.find(l => l.time === lessonTime)) {
+        scheduleData[day].lessons.push({
+          time: lessonTime,
+          class: document.getElementById('class').value,
+          subject: document.getElementById('subject').value,
+          room: document.getElementById('room').value
+        });
+      } else {
+        const lessonIndex = scheduleData[day].lessons.findIndex(l => l.time === lessonTime);
+        scheduleData[day].lessons[lessonIndex].class = document.getElementById('class').value;
+        scheduleData[day].lessons[lessonIndex].subject = document.getElementById('subject').value;
+        scheduleData[day].lessons[lessonIndex].room = document.getElementById('room').value;
+      }
+      
+      hideModal();
+      renderSchedule();
+    });
+
+    // Initialize schedule
+    document.addEventListener('DOMContentLoaded', renderSchedule);
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('lessonModal');
+      if (event.target === modal) {
+        hideModal();
+      }
+    }
+  </script>
+</body>
+</html>
